@@ -1,0 +1,96 @@
+@import '_vars-colors';
+@import '_vars-fonts';
+
+#devtools-view {
+  display: none;
+  position: fixed;
+  top: 16px;
+  bottom: 16px;
+  right: 16px;
+  left: 16px;
+  box-shadow: 0 0 32px black;
+  z-index: 1000;
+  background-color: white;
+  border-radius: 3px;
+
+  &.visible {
+    display: block;
+  }
+
+  .close-devtools {
+    width: 32px;
+    height: 32px;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border-style: none;
+    color: gray;
+    cursor: pointer;
+
+    &::before {
+      content: "×";
+      font-size: 32px;
+      line-height: 28px;
+    }
+
+    &:hover {
+      color: black;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  h2 {
+    margin-top: 16px;
+    margin-left: 32px;
+  }
+
+  hr {
+    height: 1px;
+    background-color: silver;
+    border-style: none;
+  }
+
+  .devtools-groups {
+    position: absolute;
+    top: 100px;
+    bottom: 0;
+    left: 32px;
+    right: 32px;
+
+    .group {
+      width: 50%;
+      height: 100%;
+      padding-bottom: 32px;
+      position: relative;
+      float: left;
+      overflow-y: scroll;
+    }
+  }
+
+  textarea.form-control {
+    min-height: 64px;
+    height: 64px;
+    resize: none;
+    font-family: $font-monospace;
+  }
+}
+
+@media (max-width: 768px) {
+  #devtools-view {
+    .devtools-groups {
+      overflow-y: scroll;
+
+      .group {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+    }
+  }
+}
