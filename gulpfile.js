@@ -137,8 +137,12 @@ gulp.task('scripts', () => {
       format: 'iife',
       plugins: [
         babel({
-          exclude: 'node_modules/**',
-          presets: ['es2015-rollup']
+          presets: [
+            ['es2015', { modules: false }]
+          ],
+          plugins: [
+            'external-helpers'
+          ]
         })
       ]
     }))

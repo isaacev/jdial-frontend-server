@@ -4,33 +4,37 @@
   "author": "Isaac Evavold <isaacevavold@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "postinstall": "gulp build"
   },
   "dependencies": {
-    "clipboard": "^1.5.16",
-    "codemirror": "^5.20.2",
+    "clipboard": "^1.6.1",
+    "codemirror": "^5.24.2",
     "express": "^4.15.2",
     "jquery": "^3.1.1",
-    "localforage": "^1.4.3",
+    "localforage": "^1.5.0",
     "mousetrap": "^1.6.0",
-    "primer-css": "^4.4.0",
-    "superagent": "^3.0.0"
+    "primer-core": "^2.0.0",
+    "primer-css": "^5.0.0",
+    "superagent": "^3.5.0"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",
-    "babel-preset-es2015-rollup": "^1.2.0",
+    "babel-preset-es2015-rollup": "^3.0.0",
+    "babel-runtime": "^6.23.0",
     "del": "^2.2.2",
-    "eslint": "^3.10.2",
+    "eslint": "^3.17.1",
     "gulp": "^3.9.1",
-    "gulp-clean-css": "^2.0.13",
+    "gulp-clean-css": "^3.0.3",
     "gulp-concat": "^2.6.1",
-    "gulp-minify": "^0.0.14",
+    "gulp-minify": "^0.0.15",
     "gulp-rename": "^1.2.2",
-    "gulp-rollup": "^2.5.1",
-    "gulp-sass": "^2.3.2",
-    "gulp-standard": "^8.0.2",
-    "node-sass": "^3.13.0",
-    "rollup-plugin-babel": "^2.6.1"
+    "gulp-rollup": "^2.11.0",
+    "gulp-sass": "^3.1.0",
+    "gulp-standard": "^9.0.0",
+    "node-sass": "^4.5.0",
+    "primer-support": "^3.0.1",
+    "rollup-plugin-babel": "^2.7.1"
   },
   "standard": {
     "parser": "babel-eslint",
