@@ -2,6 +2,32 @@
 @import '_vars-fonts';
 @import '_vars-colors';
 
+$line-height: 19px;
+
+.change-widget {
+    height: $line-height + 16px;
+    background-color: #A6F3A6;
+    position: relative;
+
+    button {
+        position: absolute;
+        top: 4px;
+        z-index: 1000;
+    }
+
+    .accept-change {
+        right: 6px;
+    }
+
+    .cancel-change {
+        right: 76px;
+    }
+}
+
+.old-line {
+    background-color: #F8CBCB !important;
+}
+
 .CodeMirror {
   height: 100%;
   position: absolute;

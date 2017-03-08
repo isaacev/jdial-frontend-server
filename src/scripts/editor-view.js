@@ -171,27 +171,55 @@ class EditorView extends EventHandler {
         ]
       })
 
-      notif.on('apply-suggestion', () => {
-        let originalLine = this.editor.getLine(line - 1)
-        let modifiedLine = originalLine.replace(/\b\d+\b/, value.toString())
+      // Add red class to original line.
+      this.editor.getDoc().addLineClass(line - 1, 'background', 'old-line')
+
+      // Create line widget with updated, green line.
+      let originalLine = this.editor.getLine(line - 1)
+      let modifiedLine = originalLine.replace(/\b\d+\b/, value.toString())
+      let widgetElem = $('<div />')
+        .addClass('change-widget')
+        .append('<pre class="line">' + modifiedLine + '</pre>')
+        .append('<button class="accept-change">Accept</button>')
+        .append('<button class="cancel-change">Cancel</button>')
+
+      widgetElem.find('.accept-change').on('click', () => {
+        this.editor.getDoc().removeLineClass(line - 1, 'background', 'old-line')
+        widget.clear()
         this.editor.replaceRange(
           modifiedLine,
           {line: line - 1, ch: 0},
           {line: line - 1, ch: originalLine.length}
         )
-
-        this.trigger('apply-suggestion', [])
       })
 
-      notif.on('different-suggestion', () => {
-        NotificationView.send('info', 'Make different suggestion').open()
+      widgetElem.find('.cancel-change').on('click', () => {
+        widget.clear()
+        this.editor.getDoc().removeLineClass(line - 1, 'background', 'old-line')
       })
 
-      notif.on('dismiss', () => {
-        NotificationView.send('info', 'Suggestion ignored').open()
-      })
+      let widget = this.editor.getDoc().addLineWidget(line - 1, widgetElem.get(0))
 
-      notif.open()
+      // notif.on('apply-suggestion', () => {
+        
+      //   this.editor.replaceRange(
+      //     modifiedLine,
+      //     {line: line - 1, ch: 0},
+      //     {line: line - 1, ch: originalLine.length}
+      //   )
+
+      //   this.trigger('apply-suggestion', [])
+      // })
+
+      // notif.on('different-suggestion', () => {
+      //   NotificationView.send('info', 'Make different suggestion').open()
+      // })
+
+      // notif.on('dismiss', () => {
+      //   NotificationView.send('info', 'Suggestion ignored').open()
+      // })
+
+      // notif.open()
     })
   }
 }
