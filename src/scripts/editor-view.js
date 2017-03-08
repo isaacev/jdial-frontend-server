@@ -191,6 +191,7 @@ class EditorView extends EventHandler {
           {line: line - 1, ch: 0},
           {line: line - 1, ch: originalLine.length}
         )
+        this.trigger('apply-suggestion', [])
       })
 
       widgetElem.find('.cancel-change').on('click', () => {
