@@ -4,6 +4,7 @@
   "author": "Isaac Evavold <isaacevavold@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "prestart": "node prestart.js",
     "start": "node server.js",
     "postinstall": "gulp build"
   },
@@ -11,11 +12,13 @@
     "clipboard": "^1.6.1",
     "codemirror": "^5.24.2",
     "express": "^4.15.2",
+    "express-http-proxy": "^0.11.0",
     "jquery": "^3.1.1",
     "localforage": "^1.5.0",
+    "morgan": "^1.8.1",
     "mousetrap": "^1.6.0",
-    "primer-core": "^2.0.0",
     "primer-css": "^5.0.0",
+    "prompt": "^1.0.0",
     "superagent": "^3.5.0"
   },
   "devDependencies": {
@@ -33,7 +36,6 @@
     "gulp-sass": "^3.1.0",
     "gulp-standard": "^9.0.0",
     "node-sass": "^4.5.0",
-    "primer-support": "^3.0.1",
     "rollup-plugin-babel": "^2.7.1"
   },
   "standard": {

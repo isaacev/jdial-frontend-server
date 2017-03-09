@@ -1,49 +1,39 @@
-const { resolve } = require('path')
-const express     = require('express')
-const config      = require('./config.json')
+const fs        = require('fs')
+const path      = require('path')
+const url       = require('url')
+const express   = require('express')
+const httpProxy = require('express-http-proxy')
+const morgan    = require('morgan')
+const config    = require('./config.json')
 
-function staticFile (app, endpoint, relative) {
+function staticFile (endpoint, relative) {
   app.get(endpoint, (req, res) => {
-    res.sendFile(resolve(__dirname, relative))
+    res.sendFile(path.resolve(__dirname, relative))
   })
 }
 
-function staticDir (app, endpoint, relative) {
-  app.use(endpoint, express.static(resolve(__dirname, relative)))
+function staticDir (endpoint, relative) {
+  app.use(endpoint, express.static(path.resolve(__dirname, relative)))
 }
 
+function proxy (endpoint, urlObj) {
+  app.use(endpoint, httpProxy(url.format(urlObj)))
+}
+
+// Configure server.
 const port = process.env.PORT || 8080
 const app = express()
+const logFilename = path.join(__dirname, 'access.log')
+const logFile = fs.createWriteStream(logFilename, { flags: 'a' })
+app.use(morgan('common', { stream: logFile }))
 
+// Create static routes.
 staticFile('/', './views/index.html')
 staticDir('/public', './dist')
 staticDir('/assets', './assets')
 
-app.post('/trace', (req, res) => {
-  let proxReq = http.request({
-    host: config.trace_host,
-    port: config.trace_port,
-    path: config.trace_path,
-    method: config.trace_method,
-    headers: req.headers,
-  }, (proxRes) => {
-    proxRes.setEncoding('utf8')
-    proxRes.on('data', (chunk) => { res.write(chunk) })
-    proxRes.on('close', () => {
-      res.writeHead(proxRes.statusCode)
-      res.end()
-    })
-
-    proxRes.on('end', () => {
-      res.writeHead(proxRes.statusCode);
-      res.end();
-    })
-  }).on('error', function(err) {
-    res.writeHead(500)
-    res.end()
-  })
-
-  proxReq.end()
-})
+// Create proxy endpoints.
+proxy('/trace', config['trace-endpoint'])
+proxy('/suggest', config['suggest-endpoint'])
 
 app.listen(port)
