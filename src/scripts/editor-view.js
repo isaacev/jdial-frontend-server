@@ -1,4 +1,3 @@
-import NotificationView from './notification-view'
 import EventHandler from './event-handler'
 
 const EXECUTING_LINE_CLASS = 'active-line'
@@ -162,23 +161,16 @@ class EditorView extends EventHandler {
         throw new Error(`value is NaN: ${match}`)
       }
 
-      let notif = NotificationView.send('success', 'Possible change', {
-        code: `add ${value} on line #${line}?`,
-        large: true,
-        actions: [
-          { name: 'Change', command: 'apply-suggestion' },
-          { name: 'Try again', command: 'different-suggestion' }
-        ]
-      })
-
+      /*
       // Add red class to original line.
-      this.editor.getDoc().addLineClass(line - 1, 'background', 'old-line')
+      this.editor.getDoc().addLineClass(line - 1, 'background', 'diff-old-line')
 
       // Create line widget with updated, green line.
       let originalLine = this.editor.getLine(line - 1)
-      let modifiedLine = originalLine.replace(/\b\d+\b/, value.toString())
+      let modifiedLine = originalLine.replace(/\b\d+\b/,
+        '<span class="change">' + value.toString() + '</span>')
       let widgetElem = $('<div />')
-        .addClass('change-widget')
+        .addClass('diff-widget')
         .append('<pre class="line">' + modifiedLine + '</pre>')
         .append('<button class="accept-change">Accept</button>')
         .append('<button class="cancel-change">Cancel</button>')
@@ -200,29 +192,60 @@ class EditorView extends EventHandler {
       })
 
       let widget = this.editor.getDoc().addLineWidget(line - 1, widgetElem.get(0))
+      */
 
-      // notif.on('apply-suggestion', () => {
-        
-      //   this.editor.replaceRange(
-      //     modifiedLine,
-      //     {line: line - 1, ch: 0},
-      //     {line: line - 1, ch: originalLine.length}
-      //   )
-
-      //   this.trigger('apply-suggestion', [])
-      // })
-
-      // notif.on('different-suggestion', () => {
-      //   NotificationView.send('info', 'Make different suggestion').open()
-      // })
-
-      // notif.on('dismiss', () => {
-      //   NotificationView.send('info', 'Suggestion ignored').open()
-      // })
-
-      // notif.open()
+      createChangeWidget(this, line - 1, value)
     })
   }
+}
+
+// Assumes `lineNum` is 0-based.
+function createChangeWidget (edv, lineNum, newVal) {
+  const OLD_LINE_CLASS = 'diff-old-line'
+  const CHANGE_CLASS = 'diff-change'
+  const originalLine = edv.editor.getLine(lineNum)
+  const changeMatch = originalLine.match(/\b\d+\b/)
+  const styledDiff = `<span class="diff-change">${newVal.toString()}</span>`
+  const styledModifiedLine = originalLine.replace(/\b\d+\b/, styledDiff)
+  const modifiedLine = originalLine.replace(/\b\d+\b/, newVal.toString())
+
+  // Mark old line.
+  edv.editor.getDoc().addLineClass(lineNum, 'background', OLD_LINE_CLASS)
+  const marker = edv.editor.getDoc().markText(
+    { line: lineNum, ch: changeMatch.index},
+    { line: lineNum, ch: changeMatch.index + changeMatch[0].length },
+    { className: CHANGE_CLASS },
+  )
+
+  // Build widget.
+  const widgetElem = $('<div />')
+    .addClass('diff-widget')
+    .append('<button class="cancel-change" title="Cancel Change">&#x2717; Don&rsquo;t change</button>')
+    .append('<button class="accept-change" title="Accept Change">&#x2713; Make change</button>')
+    .append('<pre class="line">' + styledModifiedLine + '</pre>')
+
+  const widget = edv.editor.getDoc().addLineWidget(lineNum, widgetElem.get(0))
+
+  widgetElem.find('.accept-change').on('click', () => {
+    widget.clear()
+    marker.clear()
+
+    edv.editor.getDoc().removeLineClass(lineNum, 'background', OLD_LINE_CLASS)
+    edv.editor
+    edv.editor.replaceRange(
+      modifiedLine,
+      {line: lineNum, ch: 0},
+      {line: lineNum, ch: originalLine.length}
+    )
+    edv.trigger('apply-suggestion', [])
+  })
+
+  widgetElem.find('.cancel-change').on('click', () => {
+    widget.clear()
+    marker.clear()
+
+    edv.editor.getDoc().removeLineClass(lineNum, 'background', OLD_LINE_CLASS)
+  })
 }
 
 export default EditorView

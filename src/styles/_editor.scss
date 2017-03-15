@@ -4,26 +4,6 @@
 
 $line-height: 19px;
 
-.change-widget {
-    height: $line-height + 16px;
-    background-color: #A6F3A6;
-    position: relative;
-
-    button {
-        position: absolute;
-        top: 4px;
-        z-index: 1000;
-    }
-
-    .accept-change {
-        right: 6px;
-    }
-
-    .cancel-change {
-        right: 76px;
-    }
-}
-
 .old-line {
     background-color: #F8CBCB !important;
 }
@@ -37,6 +17,55 @@ $line-height: 19px;
   font-family: $font-monospace;
   font-size: 13px;
   cursor: text;
+
+  .CodeMirror-linewidget {
+    overflow: visible;
+  }
+
+  .diff-old-line {
+    background-color: $color-diff-red;
+  }
+
+  .diff-change {
+    background-color: $color-diff-red-dark;
+  }
+
+  .diff-widget {
+    height: $line-height;
+    position: relative;
+    background-color: $color-diff-green;
+
+    .diff-change {
+      background-color: $color-diff-green-dark;
+    }
+
+    button {
+      width: 120px;
+      text-align: left;
+      display: block;
+      position: absolute;
+      right: 8px;
+      margin: 0;
+      padding: 0;
+      background: none;
+      border-style: none;
+      cursor: pointer;
+      color: lighten(black, 60%);
+      z-index: 1000;
+
+      &:hover {
+        color: black;
+      }
+    }
+
+    .cancel-change {
+      top: -$line-height;
+    }
+
+    .accept-change {
+      top: 0;
+    }
+  }
 
   .CodeMirror-selected {
     background-color: $color-editor-selection;
