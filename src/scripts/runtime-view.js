@@ -489,12 +489,27 @@ class RuntimeView extends EventHandler {
             return html
           }
 
+          let htmlRepresentation = htmlBuilder.span('value field', sanitize(locals[localName]))
+
+          if (Array.isArray(locals[localName]) && locals[localName][0] === 'REF') {
+            // Render a heap reference.
+            const refID = locals[localName][1]
+            const heap = point['heap']
+            const obj = heap[refID]
+
+            if (obj === undefined) {
+              throw new Error('malformed execution trace')
+            }
+
+            htmlRepresentation = renderHeapObject(obj)
+          }
+
           return html + htmlBuilder.li({
             'data-variable': sanitize(localName),
             children: [
               htmlBuilder.span('current', [
                 htmlBuilder.span('name', sanitize(localName)),
-                htmlBuilder.span('value field', sanitize(locals[localName]))
+                htmlRepresentation,
               ]),
               ' &xrarr; ',
               htmlBuilder.input({
@@ -525,6 +540,21 @@ class RuntimeView extends EventHandler {
     Mousetrap.unbind('right')
   }
 }
+
+function renderHeapObject (obj) {
+  if (Array.isArray(obj) && obj[0] === 'LIST') {
+    let contents = obj.slice(1)
+
+    return htmlBuilder.span('field array', contents.map((elem) => {
+      if (Array.isArray(elem) && elem[0] === 'ELIDE') {
+        return htmlBuilder.span('value', '&hellip;')
+      }
+
+      return htmlBuilder.span('value', sanitize(elem))
+    }))
+  }
+
+  return htmlBuilder.span('value field', sanitize(locals[localName]))
 }
 
 export default RuntimeView

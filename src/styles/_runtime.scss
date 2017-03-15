@@ -33,7 +33,37 @@ $dot-right-margin: 6px;
   cursor: pointer;
 
   &:hover {
+    text-decoration: none;
+  }
+}
+
+.field.array {
+  &:hover {
+    text-decoration: none;
+  }
+
+  &:before {
+    content: "[";
+    padding-right: 4px;
+  }
+
+  &:after {
+    content: "]";
+    padding-left: 4px;
+  }
+
+  .value:hover {
     text-decoration: underline;
+  }
+
+  .value:after {
+    content: ",";
+    padding: 0 2px;
+  }
+
+  .value:last-child:after {
+    content: "";
+    padding: 0;
   }
 }
 
