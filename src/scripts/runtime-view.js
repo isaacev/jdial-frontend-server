@@ -312,6 +312,8 @@ class RuntimeView extends EventHandler {
       'jump-start',
       'jump-end'
     ])
+
+    this.enableKeyboardShortcuts()
   }
 
   showPendingMessage () {
@@ -336,6 +338,8 @@ class RuntimeView extends EventHandler {
       'jump-start',
       'jump-end'
     ])
+
+    this.disableKeyboardShortcuts()
 
     // Replace any HTML embedded in the trace or variable views with
     // a basic "pending" message
@@ -506,6 +510,21 @@ class RuntimeView extends EventHandler {
       }
     }
   }
+
+  enableKeyboardShortcuts () {
+    Mousetrap.bind('up',   () => { this.cs.trigger('step-backward', []) })
+    Mousetrap.bind('down', () => { this.cs.trigger('step-forward', []) })
+    Mousetrap.bind('left', () => { this.cs.trigger('jump-start', []) })
+    Mousetrap.bind('right', () => { this.cs.trigger('jump-end', []) })
+  }
+
+  disableKeyboardShortcuts () {
+    Mousetrap.unbind('up')
+    Mousetrap.unbind('down')
+    Mousetrap.unbind('left')
+    Mousetrap.unbind('right')
+  }
+}
 }
 
 export default RuntimeView
