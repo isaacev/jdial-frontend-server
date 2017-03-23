@@ -19,6 +19,36 @@ const BUILTIN_PROGRAMS = {
         System.out.println("Hello world");
     }
 }`,
+  'Max3': `public class Main {
+  public static int largestGap() {
+    int x = 3;
+    int y = 10;
+    int z = 5;
+    if (x > y) y = x;
+    if (y > z) z = x; // should be z = y
+    return z;
+  }
+
+  public static void main(String[] args) {
+    int x = largestGap();
+    System.out.println(x);
+  }
+}`,
+  'SumUp': `public class Main {
+  public static int SumUp() {
+    int n = 5;
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+      sum += i;
+    }
+    return sum;
+  }
+
+  public static void main(String[] args) {
+    int x = SumUp();
+    System.out.println(x);
+  }
+}`,
   'custom': ``
 }
 
