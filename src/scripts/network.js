@@ -31,6 +31,7 @@ class Network {
     superagent
     .post('/trace')
     .send(payload.stringify())
+    .set('Content-Type', 'application/json')
     .end((err, res) => {
       if (err || res.ok !== true) {
         ajaxFail(err)
@@ -78,6 +79,7 @@ class Network {
     superagent
     .post('/suggest')
     .send(payload.stringify())
+    .set('Content-Type', 'application/json')
     .end((err, res) => {
       if (err || res.ok !== true) {
         ajaxFail(err)
