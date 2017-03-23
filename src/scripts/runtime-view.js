@@ -102,6 +102,7 @@ class RuntimeView extends EventHandler {
     let returnValueStack = []
 
     let html = ''
+    let threwException = false
 
     html += htmlBuilder([
       '<div class="scope top-level">',
@@ -247,6 +248,28 @@ class RuntimeView extends EventHandler {
             isReturn ? '</li>' : ''
           ])
 
+          return pointHtml + html
+
+        case 'uncaught_exception':
+          NotificationView.send('fatal', point['exception_msg']).open()
+
+          pointHtml = htmlBuilder([
+            htmlBuilder.li('point exception', [
+              htmlBuilder.input({
+                type: 'radio',
+                id: `point-${index}`,
+                classes: ['point-radio-button'],
+                name: 'point',
+                value: index,
+                'data-line': lineNum
+              }),
+              htmlBuilder.label({
+                for: `point-${index}`
+              })
+            ]),
+          ])
+
+          console.log(pointHtml + html)
           return pointHtml + html
 
         default:
@@ -471,6 +494,12 @@ class RuntimeView extends EventHandler {
       }
 
       let point = this.trace[index]
+
+      if (point['event'] === 'uncaught_exception') {
+        console.log('did not render exception point')
+        return
+      }
+
       let callstack = point['stack_to_render']
 
       if (Array.isArray(callstack) === false) {
