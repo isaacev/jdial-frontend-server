@@ -131,109 +131,48 @@ class EditorView extends EventHandler {
   }
 
   makeSuggestion (raw) {
-    let matches = raw.match(/\{([^\n]*)\}/)
+    let lines = raw.split('\n')
+    let suggestionRegex = /(\d+)\t(.*)/
 
-    if (matches === null || (matches[1] && matches[1].length === 0)) {
+    if (lines.length < 1 || lines[0] !== 'success' || suggestionRegex.test(lines[1]) === false) {
       console.error(`RAW SUGGESTION: ${raw}`)
       throw new Error('no suggestion')
     }
 
-    let match = matches[1]
-
     // TODO: only looks at first suggestion currently
-    match.split(',')
-    .filter((p, i) => i === 0)
-    .forEach((rawPair) => {
-      let pair = rawPair.split('=')
+    let match = lines[1].match(suggestionRegex)
+    let line = parseInt(match[1], 10)
+    let value = match[2]
 
-      if (pair.length !== 2) {
-        throw new Error(`no pairs: ${match}`)
-      }
-
-      let line = parseInt(pair[0], 10)
-      let value = parseInt(pair[1], 10)
-
-      if (isNaN(line)) {
-        throw new Error(`line is NaN: ${match}`)
-      }
-
-      if (isNaN(value)) {
-        throw new Error(`value is NaN: ${match}`)
-      }
-
-      /*
-      // Add red class to original line.
-      this.editor.getDoc().addLineClass(line - 1, 'background', 'diff-old-line')
-
-      // Create line widget with updated, green line.
-      let originalLine = this.editor.getLine(line - 1)
-      let modifiedLine = originalLine.replace(/\b\d+\b/,
-        '<span class="change">' + value.toString() + '</span>')
-      let widgetElem = $('<div />')
-        .addClass('diff-widget')
-        .append('<pre class="line">' + modifiedLine + '</pre>')
-        .append('<button class="accept-change">Accept</button>')
-        .append('<button class="cancel-change">Cancel</button>')
-
-      widgetElem.find('.accept-change').on('click', () => {
-        this.editor.getDoc().removeLineClass(line - 1, 'background', 'old-line')
-        widget.clear()
-        this.editor.replaceRange(
-          modifiedLine,
-          {line: line - 1, ch: 0},
-          {line: line - 1, ch: originalLine.length}
-        )
-        this.trigger('apply-suggestion', [])
-      })
-
-      widgetElem.find('.cancel-change').on('click', () => {
-        widget.clear()
-        this.editor.getDoc().removeLineClass(line - 1, 'background', 'old-line')
-      })
-
-      let widget = this.editor.getDoc().addLineWidget(line - 1, widgetElem.get(0))
-      */
-
-      createChangeWidget(this, line - 1, value)
-    })
+    createChangeWidget(this, line - 1, value)
   }
 }
 
 // Assumes `lineNum` is 0-based.
-function createChangeWidget (edv, lineNum, newVal) {
+function createChangeWidget (edv, lineNum, newLine) {
   const OLD_LINE_CLASS = 'diff-old-line'
   const CHANGE_CLASS = 'diff-change'
   const originalLine = edv.editor.getLine(lineNum)
-  const changeMatch = originalLine.match(/\b\d+\b/)
-  const styledDiff = `<span class="diff-change">${newVal.toString()}</span>`
-  const styledModifiedLine = originalLine.replace(/\b\d+\b/, styledDiff)
-  const modifiedLine = originalLine.replace(/\b\d+\b/, newVal.toString())
 
   // Mark old line.
   edv.editor.getDoc().addLineClass(lineNum, 'background', OLD_LINE_CLASS)
-  const marker = edv.editor.getDoc().markText(
-    { line: lineNum, ch: changeMatch.index},
-    { line: lineNum, ch: changeMatch.index + changeMatch[0].length },
-    { className: CHANGE_CLASS },
-  )
 
   // Build widget.
   const widgetElem = $('<div />')
     .addClass('diff-widget')
     .append('<button class="cancel-change" title="Cancel Change">&#x2717; Don&rsquo;t change</button>')
     .append('<button class="accept-change" title="Accept Change">&#x2713; Make change</button>')
-    .append('<pre class="line">' + styledModifiedLine + '</pre>')
+    .append('<pre class="line">' + newLine + '</pre>')
 
   const widget = edv.editor.getDoc().addLineWidget(lineNum, widgetElem.get(0))
 
   widgetElem.find('.accept-change').on('click', () => {
     widget.clear()
-    marker.clear()
 
     edv.editor.getDoc().removeLineClass(lineNum, 'background', OLD_LINE_CLASS)
     edv.editor
     edv.editor.replaceRange(
-      modifiedLine,
+      newLine,
       {line: lineNum, ch: 0},
       {line: lineNum, ch: originalLine.length}
     )
@@ -242,7 +181,6 @@ function createChangeWidget (edv, lineNum, newVal) {
 
   widgetElem.find('.cancel-change').on('click', () => {
     widget.clear()
-    marker.clear()
 
     edv.editor.getDoc().removeLineClass(lineNum, 'background', OLD_LINE_CLASS)
   })
