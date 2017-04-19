@@ -24,8 +24,12 @@ const BUILTIN_PROGRAMS = {
     int x = 3;
     int y = 10;
     int z = 5;
-    if (x > y) y = x;
-    if (y > z) z = x; // should be z = y
+    if (x > y) {
+      y = x;
+    }
+    if (y > z) {
+      z = x; // should be z = y
+    }
     return z;
   }
 
