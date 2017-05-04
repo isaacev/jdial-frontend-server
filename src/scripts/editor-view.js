@@ -139,52 +139,66 @@ class EditorView extends EventHandler {
       throw new Error('no suggestion')
     }
 
-    // TODO: only looks at first suggestion currently
-    let match = lines[1].match(suggestionRegex)
-    let line = parseInt(match[1], 10)
-    let value = match[2]
+    // remove success tag
+    lines.shift()
 
-    createChangeWidget(this, line - 1, value)
+    for (let i = 0; i < lines.length; i++) {
+      let match = lines[i].match(suggestionRegex)
+      let lineNum = parseInt(match[1], 10) - 1
+      let lineValue = match[2]
+      lines[i] = { lineNum: lineNum, lineValue: lineValue }
+    }
+
+    createChangeWidget(this, lines)
   }
 }
 
 // Assumes `lineNum` is 0-based.
-function createChangeWidget (edv, lineNum, newLine) {
+function createChangeWidget (edv, changes) {
   const OLD_LINE_CLASS = 'diff-old-line'
   const CHANGE_CLASS = 'diff-change'
-  const originalLine = edv.editor.getLine(lineNum)
+  const widgets = changes.sort((a, b) => a.lineNum - b.lineNum).map((change, index) => {
+    // Mark old line
+    edv.editor.getDoc().addLineClass(change.lineNum, 'background', OLD_LINE_CLASS)
 
-  // Mark old line.
-  edv.editor.getDoc().addLineClass(lineNum, 'background', OLD_LINE_CLASS)
-  let indentation = edv.editor.getDoc().getLine(lineNum).match(/^\s*/)[0]
-  indentation = indentation.replace(/\t/g, '    ')
-  newLine = indentation + newLine.trim()
+    // Add appropriate level of indentation to new line
+    let oldLineValue = edv.editor.getLine(change.lineNum)
+    let indentation = (oldLineValue.match(/^\s*/) || [''])[0].replace(/\t/g, '    ')
+    change.lineValue = indentation + change.lineValue
 
-  // Build widget.
-  const widgetElem = $('<div />')
-    .addClass('diff-widget')
-    .append('<button class="cancel-change" title="Cancel Change">&#x2717; Don&rsquo;t change</button>')
-    .append('<button class="accept-change" title="Accept Change">&#x2713; Make change</button>')
-    .append('<pre class="line">' + newLine + '</pre>')
+    // Build widget
+    const widgetElem = $('<div />').addClass('diff-widget')
 
-  const widget = edv.editor.getDoc().addLineWidget(lineNum, widgetElem.get(0))
+    if (index === changes.length - 1) {
+      widgetElem
+        .append('<button class="cancel-change" title="Cancel Change">&#x2717; Don&rsquo;t change</button>')
+        .append('<button class="accept-change" title="Accept Change">&#x2713; Make change</button>')
 
-  widgetElem.find('.accept-change').on('click', () => {
-    widget.clear()
+      widgetElem.find('.accept-change').on('click', () => {
+        widgets.forEach(w => w.clear())
+        changes.forEach((change) => {
+          let oldLineValue = edv.editor.getLine(change.lineNum)
+          edv.editor.getDoc().removeLineClass(change.lineNum, 'background', OLD_LINE_CLASS)
+          edv.editor.replaceRange(
+            change.lineValue,
+            {line: change.lineNum, ch: 0},
+            {line: change.lineNum, ch: oldLineValue.length}
+          )
+        })
+        edv.trigger('apply-suggestion', [])
+      })
 
-    edv.editor.getDoc().removeLineClass(lineNum, 'background', OLD_LINE_CLASS)
-    edv.editor.replaceRange(
-      newLine,
-      {line: lineNum, ch: 0},
-      {line: lineNum, ch: originalLine.length}
-    )
-    edv.trigger('apply-suggestion', [])
-  })
+      widgetElem.find('.cancel-change').on('click', () => {
+        widgets.forEach(w => w.clear())
+        edv.editor.getDoc().removeLineClass(change.lineNum, 'background', OLD_LINE_CLASS)
+        changes.forEach((change) => {
+          edv.editor.getDoc().removeLineClass(change.lineNum, 'background', OLD_LINE_CLASS)
+        })
+      })
+    }
 
-  widgetElem.find('.cancel-change').on('click', () => {
-    widget.clear()
-
-    edv.editor.getDoc().removeLineClass(lineNum, 'background', OLD_LINE_CLASS)
+    widgetElem.append('<pre class="line">' + change.lineValue + '</pre>')
+    return edv.editor.getDoc().addLineWidget(change.lineNum, widgetElem.get(0))
   })
 }
 
