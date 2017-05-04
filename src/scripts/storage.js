@@ -1,4 +1,5 @@
 const WORKING_PROGRAM_KEY = 'working_program_copy'
+const SETTINGS_KEY = 'devtools_settings'
 
 const BUILTIN_PROGRAMS = {
   'tests': `public class Main {
@@ -57,6 +58,26 @@ const BUILTIN_PROGRAMS = {
 }
 
 class Storage {
+  static getSettings (cb) {
+    localforage.getItem(SETTINGS_KEY)
+      .then((value) => {
+        cb.apply({}, [null, value])
+      })
+      .catch((err) => {
+        cb.apply({}, [err])
+      })
+  }
+
+  static setSettings (newSettings, cb) {
+    localforage.setItem(SETTINGS_KEY, newSettings)
+      .then((value) => {
+        cb.apply({}, [null, value])
+      })
+      .catch((err) => {
+        cb.apply({}, [err])
+      })
+  }
+
   static workingCopyExists (cb) {
     if (typeof cb !== 'function') {
       throw new Error('expected 1st arg. of Storage.workingCopyExists() to be a function')
