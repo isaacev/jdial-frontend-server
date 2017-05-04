@@ -131,7 +131,7 @@ class EditorView extends EventHandler {
   }
 
   makeSuggestion (raw) {
-    let lines = raw.split('\n')
+    let lines = raw.trim().split('\n')
     let suggestionRegex = /(\d+)\t(.*)/
 
     if (lines.length < 1 || lines[0] !== 'success' || suggestionRegex.test(lines[1]) === false) {
