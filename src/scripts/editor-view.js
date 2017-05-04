@@ -156,6 +156,9 @@ function createChangeWidget (edv, lineNum, newLine) {
 
   // Mark old line.
   edv.editor.getDoc().addLineClass(lineNum, 'background', OLD_LINE_CLASS)
+  let indentation = edv.editor.getDoc().getLine(lineNum).match(/^\s*/)[0]
+  indentation = indentation.replace(/\t/g, '    ')
+  newLine = indentation + newLine.trim()
 
   // Build widget.
   const widgetElem = $('<div />')
@@ -170,7 +173,6 @@ function createChangeWidget (edv, lineNum, newLine) {
     widget.clear()
 
     edv.editor.getDoc().removeLineClass(lineNum, 'background', OLD_LINE_CLASS)
-    edv.editor
     edv.editor.replaceRange(
       newLine,
       {line: lineNum, ch: 0},
