@@ -483,7 +483,10 @@ class RuntimeView extends EventHandler {
       // Make data available to the Debug panel
       DevtoolsView.setModifiedTracePoint(clone, pointIdx)
 
-      this.trigger('get-suggestion', [new SuggestionPayload(wholeStr, pointStr, pointIdx, focusedLines)])
+      DevtoolsView.getSettings((settings) => {
+        let payload = new SuggestionPayload(wholeStr, pointStr, pointIdx, focusedLines, settings)
+        this.trigger('get-suggestion', [payload])
+      })
     }
   }
 
